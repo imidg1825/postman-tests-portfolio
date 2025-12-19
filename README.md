@@ -60,6 +60,11 @@ File: `postman/yougile_api_tests.postman_collection.json`
 2. Import it into Postman
 3. Configure environment variables if required
 4. Run requests or collection runner
+   
+## 📌 About
+
+This repository contains Postman API test collections demonstrating
+positive and negative scenarios, request validation, and basic test scripting.
 
 ---
 # Портфолио API-тестов Postman
@@ -108,3 +113,10 @@ File: `postman/yougile_api_tests.postman_collection.json`
 - JSON
 - Переменные окружения
 - Базовые test scripts (JavaScript)
+
+## 📌 Описание (RU)
+
+Этот репозиторий содержит коллекции Postman с API-тестами,
+включающими позитивные и негативные сценарии, валидацию запросов
+и базовые тест-скрипты.
+
