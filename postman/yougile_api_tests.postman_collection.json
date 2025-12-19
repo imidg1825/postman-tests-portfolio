@@ -1,0 +1,464 @@
+{
+	"info": {
+		"_postman_id": "49d41b92-1e0f-4d15-949a-2a4ad0416da1",
+		"name": "ДомашкаФинал",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47167819"
+	},
+	"item": [
+		{
+			"name": "авторизация",
+			"item": [
+				{
+					"name": "создание ключа",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"login\": \"imidg1825@yandex.ru\",\r\n  \"password\": \"18251972\",\r\n  \"companyId\": \"8e24e016-48e6-486b-8a00-a5acf8924eb8\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ru.yougile.com/api-v2/auth/keys",
+							"protocol": "https",
+							"host": [
+								"ru",
+								"yougile",
+								"com"
+							],
+							"path": [
+								"api-v2",
+								"auth",
+								"keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "получение списка компаний",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"login\": \"imidg1825@yandex.ru\",\r\n  \"password\": \"18251972\",\r\n  \"name\": \"Дом\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ru.yougile.com/api-v2/auth/companies",
+							"protocol": "https",
+							"host": [
+								"ru",
+								"yougile",
+								"com"
+							],
+							"path": [
+								"api-v2",
+								"auth",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "проекты",
+			"item": [
+				{
+					"name": "получение списка проектов",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_URL}}projects",
+							"host": [
+								"{{base_URL}}projects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "создание проекта",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var key = \"Project_id\"\r",
+									"var value = pm.response.json().id\r",
+									"pm.collectionVariables.set(key,value);\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "mXdt5OClUp626XZWXaWSj-ZYnRLtzsYkwiSIHNHfxLyyNrWv7o8g6GbT+Lk9xZ7K",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"title\": \"Тест Постмэн\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}projects",
+							"host": [
+								"{{base_URL}}projects"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "доска",
+			"item": [
+				{
+					"name": "получение списка досок",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer mXdt5OClUp626XZWXaWSj-ZYnRLtzsYkwiSIHNHfxLyyNrWv7o8g6GbT+Lk9xZ7K"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_URL}}boards",
+							"host": [
+								"{{base_URL}}boards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "создание доски",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var key = \"Board_id\"\r",
+									"var value = pm.response.json().id\r",
+									"pm.collectionVariables.set(key,value);\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer mXdt5OClUp626XZWXaWSj-ZYnRLtzsYkwiSIHNHfxLyyNrWv7o8g6GbT+Lk9xZ7K"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Тестирование\",\r\n  \"projectId\": \"0a57dc17-841c-4d81-93f4-9b68b4f07ea9\",\r\n  \"stickers\": {\r\n    \"timer\": false,\r\n    \"deadline\": true,\r\n    \"stopwatch\": true,\r\n    \"timeTracking\": true,\r\n    \"assignee\": true,\r\n    \"repeat\": true,\r\n    \"custom\": {\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ru.yougile.com/api-v2/boards",
+							"protocol": "https",
+							"host": [
+								"ru",
+								"yougile",
+								"com"
+							],
+							"path": [
+								"api-v2",
+								"boards"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "колонка",
+			"item": [
+				{
+					"name": "получение списка колонок",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_URL}}columns",
+							"host": [
+								"{{base_URL}}columns"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "создание колонки",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Входящие задачи\",\r\n  \"color\": 8,\r\n  \"boardId\": \"f0f491fb-9140-4c7f-a7ce-d5caf65aa610\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_URL}}columns",
+							"host": [
+								"{{base_URL}}columns"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "редактирование",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"deleted\": false,\r\n  \"title\": \"Дизайн\",\r\n  \"color\": 6,\r\n  \"boardId\": \"f0f491fb-9140-4c7f-a7ce-d5caf65aa610\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ru.yougile.com/api-v2/columns/3ad0bdf6-2d1e-4ab7-9972-8121af371f40",
+							"protocol": "https",
+							"host": [
+								"ru",
+								"yougile",
+								"com"
+							],
+							"path": [
+								"api-v2",
+								"columns",
+								"3ad0bdf6-2d1e-4ab7-9972-8121af371f40"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "задача",
+			"item": [
+				{
+					"name": "создание задачи",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer undefined"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Пройти обучение\",\r\n  \"columnId\": \"3ad0bdf6-2d1e-4ab7-9972-8121af371f40\",\r\n  \"description\": \"Обучение по API\",\r\n  \"archived\": false,\r\n  \"completed\": false\r\n }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ru.yougile.com/api-v2/tasks",
+							"protocol": "https",
+							"host": [
+								"ru",
+								"yougile",
+								"com"
+							],
+							"path": [
+								"api-v2",
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "mXdt5OClUp626XZWXaWSj-ZYnRLtzsYkwiSIHNHfxLyyNrWv7o8g6GbT+Lk9xZ7K",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_URL",
+			"value": "https://ru.yougile.com/api-v2/",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "RHpkRWV8xgISmE4u8yX2uh7RYLbq29PVsQvYUD8TfHlF1IEEUnhwjWfqBwaVzrI3",
+			"type": "string"
+		},
+		{
+			"key": "Project_id",
+			"value": ""
+		},
+		{
+			"key": "Board_id",
+			"value": ""
+		}
+	]
+}

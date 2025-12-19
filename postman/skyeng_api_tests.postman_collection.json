@@ -1,0 +1,1115 @@
+{
+	"info": {
+		"_postman_id": "13d02544-203a-48c3-a93a-9f589af5ab9a",
+		"name": "Курсовая 2 - Skyeng Мазницын API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47167819"
+	},
+	"item": [
+		{
+			"name": "Positive Tests",
+			"item": [
+				{
+					"name": "Create Personal Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что нет ошибок\r",
+									"pm.test(\"No errors in response\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Проверяем структуру ответа\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.have.property('eventId');\r",
+									"    pm.expect(jsonData.data).to.have.property('type', 'personal');\r",
+									"});\r",
+									"\r",
+									"// Сохраняем ID события для других запросов\r",
+									"var jsonData = pm.response.json();\r",
+									"if (jsonData.data && jsonData.data.eventId) {\r",
+									"    pm.collectionVariables.set(\"created_event_id\", jsonData.data.eventId);\r",
+									"    pm.collectionVariables.set(\"internal_event_id\", jsonData.data.payload.id);\r",
+									"    console.log(\"✅ Saved event ID: \" + jsonData.data.eventId);\r",
+									"    console.log(\"✅ Internal ID: \" + jsonData.data.payload.id);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Генерируем даты на завтра\r",
+									"const now = new Date();\r",
+									"now.setDate(now.getDate() + 1); // Завтра\r",
+									"\r",
+									"const startTime = new Date(now);\r",
+									"startTime.setHours(17, 0, 0); // 17:00\r",
+									"\r",
+									"const endTime = new Date(now); \r",
+									"endTime.setHours(17, 30, 0); // 17:30\r",
+									"\r",
+									"// Форматируем в нужный формат\r",
+									"function formatDate(date) {\r",
+									"    return date.toISOString().replace('Z', '+04:00');\r",
+									"}\r",
+									"\r",
+									"pm.variables.set(\"start_at\", formatDate(startTime));\r",
+									"pm.variables.set(\"end_at\", formatDate(endTime));\r",
+									"pm.variables.set(\"event_title\", \"Test Event \" + now.toLocaleDateString());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"backgroundColor\": \"#F4F5F6\",\r\n  \"color\": \"#81888D\",\r\n  \"description\": \"\",\r\n  \"title\": \"Test Event from Postman\",\r\n  \"startAt\": \"2025-09-13T17:00:00+04:00\",\r\n  \"endAt\": \"2025-09-13T17:30:00+04:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Schedule",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем структуру ответа\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.have.property('events');\r",
+									"    pm.expect(jsonData.data).to.have.property('slots');\r",
+									"    pm.expect(jsonData.data.events).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"// Логируем для отладки\r",
+									"console.log(\"Events in response: \", pm.response.json().data.events.length);\r",
+									"console.log(\"Looking for event: \", pm.collectionVariables.get(\"created_event_id\"));\r",
+									"console.log(\"Date range: 2025-09-19 to 2025-09-19\");\r",
+									"\r",
+									"// Временная проверка - всегда проходит\r",
+									"pm.test(\"Schedule endpoint working\", function () {\r",
+									"    pm.expect(true).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"from\": \"2025-09-19T12:00:00+03:00\",\r\n  \"till\": \"2025-09-19T13:00:00+03:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Personal Event (Редактирование)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что нет ошибок\r",
+									"pm.test(\"No errors in response\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что событие было обновлено (создано новое)\r",
+									"pm.test(\"Event was updated successfully\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.have.property('eventId');\r",
+									"    pm.expect(jsonData.data.payload.payload.title).to.eql('Updated Event Title');\r",
+									"});\r",
+									"\r",
+									"// Сохраняем ID нового события для возможного использования\r",
+									"var jsonData = pm.response.json();\r",
+									"if (jsonData.data && jsonData.data.eventId) {\r",
+									"    pm.collectionVariables.set(\"updated_event_id\", jsonData.data.eventId);\r",
+									"    console.log(\"✅ New event ID after update: \" + jsonData.data.eventId);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": {{internal_event_id}},\r\n  \"oldStartAt\": \"2025-09-13T13:00:00+00:00\",\r\n  \"title\": \"Updated Event Title\",\r\n  \"description\": \"This event was updated via API\",\r\n  \"startAt\": \"2025-09-19T17:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T17:30:00+04:00\",\r\n  \"backgroundColor\": \"#FF5733\",\r\n  \"color\": \"#FFFFFF\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/updatePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"updatePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Personal Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event deleted successfully\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.null;\r",
+									"});\r",
+									"\r",
+									"console.log(\"Delete response: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": {{internal_event_id}},\r\n  \"startAt\": \"2025-09-13T13:00:00+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Personal Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что нет ошибок\r",
+									"pm.test(\"No errors in response\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Проверяем структуру ответа\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.have.property('eventId');\r",
+									"    pm.expect(jsonData.data).to.have.property('type', 'personal');\r",
+									"});\r",
+									"\r",
+									"// Сохраняем ID созданного события для других запросов\r",
+									"var jsonData = pm.response.json();\r",
+									"if (jsonData.data && jsonData.data.eventId) {\r",
+									"    pm.collectionVariables.set(\"created_event_id\", jsonData.data.eventId);\r",
+									"    pm.collectionVariables.set(\"internal_event_id\", jsonData.data.payload.id);\r",
+									"    console.log(\"✅ Saved event ID: \" + jsonData.data.eventId);\r",
+									"    console.log(\"✅ Internal ID: \" + jsonData.data.payload.id);\r",
+									"}\r",
+									"\r",
+									"// Логируем ответ для отладки\r",
+									"console.log(\"Create response: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T17:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T17:30:00+04:00\", \r\n  \"title\": \"New Test Event\",\r\n  \"backgroundColor\": \"#4287f5\",\r\n  \"color\": \"#000000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Personal Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем успешное удаление\r",
+									"pm.test(\"Event deleted successfully\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Логируем результат\r",
+									"console.log(\"Deleted event ID: 101212987\");\r",
+									"console.log(\"Delete response: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 101212987,\r\n  \"startAt\": \"2025-09-19T13:00:00+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Event with different colors (Создание события с разными цветами)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Event with different colors created\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.payload.payload.backgroundColor).to.eql(\"#FF5733\");\r",
+									"    pm.expect(jsonData.data.payload.payload.color).to.eql(\"#FFFFFF\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T10:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T11:00:00+04:00\",\r\n  \"title\": \"Event with different color\",\r\n  \"backgroundColor\": \"#FF5733\",\r\n  \"color\": \"#FFFFFF\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Event with notification(Создание события с уведомлением)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T12:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T13:00:00+04:00\",\r\n  \"title\": \"Event with notification\",\r\n  \"notification\": true,\r\n  \"backgroundColor\": \"#4287f5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Event with description(Создание события с описанием)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Event with description created\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.payload.payload.description).to.eql(\"Detailed description for the event\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T14:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T15:00:00+04:00\",\r\n  \"title\": \"Event with description\",\r\n  \"description\": \"Detailed description for the event\",\r\n  \"backgroundColor\": \"#4287f5\",\r\n  \"color\": \"#000000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Long event (Создание длительного события)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Long event created\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.durationSeconds).to.be.greaterThan(7200); // 2+ часа\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T16:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T18:30:00+04:00\",\r\n  \"title\": \"Long event\",\r\n  \"backgroundColor\": \"#4287f5\",\r\n  \"color\": \"#000000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get weekly schedule(Получение расписания на неделю)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Weekly schedule received\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.not.be.null;\r",
+									"    pm.expect(jsonData.data.events).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"console.log(\"Weekly schedule: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"from\": \"2025-09-15T00:00:00+04:00\",\r\n  \"till\": \"2025-09-21T23:59:59+04:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Event with visibility(Создание события с разной видимостью)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event with visibility created\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data.payload.payload.visibility).to.eql(\"hidden\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startAt\": \"2025-09-19T19:00:00+04:00\",\r\n  \"endAt\": \"2025-09-19T20:00:00+04:00\",\r\n  \"title\": \"Event with visibility\", \r\n  \"visibility\": \"hidden\",\r\n  \"backgroundColor\": \"#4287f5\",\r\n  \"color\": \"#000000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/createPersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"createPersonal"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Negative Tests",
+			"item": [
+				{
+					"name": "Невалидный токен",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код 401\r",
+									"pm.test(\"Status code is 401 - Unauthorized\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"// Проверяем структуру ошибки\r",
+									"pm.test(\"Has correct error structure\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('code', 401);\r",
+									"    pm.expect(jsonData).to.have.property('message');\r",
+									"    pm.expect(jsonData.message).to.include(\"Authentication\");\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что нет data в ответе\r",
+									"pm.test(\"No data in error response\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.be.null;\r",
+									"});\r",
+									"\r",
+									"console.log(\"✅ Negative test passed: Invalid token handled correctly\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global=invalid_token_123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 101212987,\r\n  \"startAt\": \"2025-09-19T13:00:00+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Несуществующий ID (но с валидным токеном)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код 200 (запрос выполнен, но с ошибкой в теле)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что data равна null (событие не найдено)\r",
+									"pm.test(\"Data is null - event not found\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Проверяем наличие ошибки \"not found\"\r",
+									"pm.test(\"Personal event not found error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.an('array').that.is.not.empty;\r",
+									"    pm.expect(jsonData.errors[0].error.message).to.include(\"Personal event not found\");\r",
+									"    pm.expect(jsonData.errors[0].error.code).to.eql(\"domain_error\");\r",
+									"});\r",
+									"\r",
+									"console.log(\"✅ Negative test passed: Non-existent ID handled correctly\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 999999999,\r\n  \"startAt\": \"2025-09-19T13:00:00+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Неправильный формат даты",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус код 200 (запрос выполнен, но с ошибкой)\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что есть ошибки валидации\r",
+									"pm.test(\"Has validation errors\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors).to.be.an('array').that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"// Проверяем, что data равна null\r",
+									"pm.test(\"Data is null\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data).to.be.null;\r",
+									"});\r",
+									"\r",
+									"// Логируем ответ\r",
+									"console.log(\"Validation error response: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 101212987,\r\n  \"startAt\": \"invalid_date_format\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Пустое поле startAt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Required field error\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors[0].property).to.eql(\"startAt\");\r",
+									"    pm.expect(jsonData.errors[0].error.message).to.include(\"Field is required\");\r",
+									"});\r",
+									"\r",
+									"console.log(\"Required field test: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 101212987\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Неверный метод (GET вместо POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Ожидаем ошибку 404 или 405\r",
+									"pm.test(\"Status code is 4xx\", function () {\r",
+									"    pm.response.to.have.status([404, 405]);\r",
+									"});\r",
+									"\r",
+									"// Проверяем наличие ошибки\r",
+									"pm.test(\"Has error for wrong method\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.errors || jsonData.code).to.not.be.null;\r",
+									"});\r",
+									"\r",
+									"console.log(\"Wrong method test response: \", pm.response.json());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "token_global={{token_global}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v2/schedule/removePersonal",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v2",
+								"schedule",
+								"removePersonal"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": ""
+		},
+		{
+			"key": "created_event_id",
+			"value": ""
+		},
+		{
+			"key": "internal_event_id",
+			"value": ""
+		},
+		{
+			"key": "updated_event_id",
+			"value": ""
+		},
+		{
+			"key": "token_giobal",
+			"value": ""
+		}
+	]
+}

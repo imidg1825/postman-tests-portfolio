@@ -1,0 +1,639 @@
+{
+	"info": {
+		"_postman_id": "9c84f403-b0fb-4c41-8880-3f2047215edf",
+		"name": "Яндекс.Расписания_Иван — Вариант A (без позитивной нитки)",
+		"description": "Вариант для ДЗ: без позитивного /thread. Позитивы: /search (2 шт), /schedule (1), /nearest_stations (1). Негативы: по одному на каждый метод. Включены переменные и тесты на скорость.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47167819"
+	},
+	"item": [
+		{
+			"name": "01 — Расписание между станциями (GET /search)",
+			"item": [
+				{
+					"name": "ПОЗИТИВ: Между станциями (Москва → Санкт‑Петербург)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', ()=> pm.response.to.have.status(200));",
+									"const j = pm.response.json();",
+									"pm.test('Есть segments', ()=> Array.isArray(j.segments) && j.segments.length>0);",
+									"let pick = j.segments && j.segments.find(s => s && s.thread && s.thread.uid && s.departure) || j.segments && j.segments[0];",
+									"if (pick && pick.thread && pick.thread.uid && pick.departure){",
+									"  const uid = pick.thread.uid;",
+									"  const date = String(pick.departure).substring(0,10);",
+									"  pm.collectionVariables.set('uid', uid);",
+									"  pm.collectionVariables.set('date', date);",
+									"  console.log('SET uid:', uid, 'date:', date);",
+									"} else { console.log('Не удалось достать uid/date'); }",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/search/?apikey={{token}}&format=json&lang=ru_RU&from={{city_from}}&to={{city_to}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								},
+								{
+									"key": "from",
+									"value": "{{city_from}}"
+								},
+								{
+									"key": "to",
+									"value": "{{city_to}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ПОЗИТИВ-2: Между станциями (train)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', ()=> pm.response.to.have.status(200));",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+									"pm.test(\"Body contains 'Москва' or 'Санкт'\", function () { pm.expect(pm.response.text()).to.match(/Москва|Санкт/i); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/search/?apikey={{token}}&format=json&lang=ru_RU&from={{city_from}}&to={{city_to}}&transport_types=train",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								},
+								{
+									"key": "from",
+									"value": "{{city_from}}"
+								},
+								{
+									"key": "to",
+									"value": "{{city_to}}"
+								},
+								{
+									"key": "transport_types",
+									"value": "train"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "НЕГАТИВ: Между станциями (без from)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('4xx expected', ()=> pm.expect(pm.response.code).to.be.within(400,499));",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/search/?apikey={{token}}&format=json&lang=ru_RU&to={{city_to}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								},
+								{
+									"key": "to",
+									"value": "{{city_to}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02 — Расписание по станции (GET /schedule)",
+			"item": [
+				{
+					"name": "ПОЗИТИВ: Расписание по станции (Шереметьево)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', ()=> pm.response.to.have.status(200));",
+									"pm.test('Шереметьево в ответе', ()=> pm.expect(pm.response.text()).to.match(/Шереметьево|Sheremetyevo/i));",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/schedule/?apikey={{token}}&format=json&station={{station_svo}}&transport_types=plane&lang=ru_RU",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"schedule",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "station",
+									"value": "{{station_svo}}"
+								},
+								{
+									"key": "transport_types",
+									"value": "plane"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "НЕГАТИВ: Расписание по станции (некорректный station)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('4xx expected', ()=> pm.expect(pm.response.code).to.be.within(400,499));",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/schedule/?apikey={{token}}&format=json&station=INVALID&lang=ru_RU",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"schedule",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "station",
+									"value": "INVALID"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03 — Маршрут (GET /thread) — только негатив",
+			"item": [
+				{
+					"name": "НЕГАТИВ: Нитка (без uid)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });",
+									"pm.test('4xx expected', ()=> pm.expect(pm.response.code).to.be.within(400,499));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/thread/?apikey={{token}}&format=json&lang=ru_RU&date={{date}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"thread",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								},
+								{
+									"key": "date",
+									"value": "{{date}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04 — Ближайшие станции (GET /nearest_stations)",
+			"item": [
+				{
+					"name": "ПОЗИТИВ: Ближайшие станции (центр Москвы, 30 км)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', ()=> pm.response.to.have.status(200));",
+									"const j = pm.response.json();",
+									"pm.test('stations[] not empty', ()=> j.stations && j.stations.length>0);",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nearest_stations/?apikey={{token}}&format=json&lat={{lat_moscow}}&lng={{lng_moscow}}&distance={{distance_km}}&lang=ru_RU",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"nearest_stations",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "lat",
+									"value": "{{lat_moscow}}"
+								},
+								{
+									"key": "lng",
+									"value": "{{lng_moscow}}"
+								},
+								{
+									"key": "distance",
+									"value": "{{distance_km}}"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "НЕГАТИВ: Ближайшие станции (без lat/lng)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('4xx expected', ()=> pm.expect(pm.response.code).to.be.within(400,499));",
+									"pm.test('Время ответа < 2000 мс', function(){ pm.expect(pm.response.responseTime).to.be.below(2000); });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nearest_stations/?apikey={{token}}&format=json&distance={{distance_km}}&lang=ru_RU",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"nearest_stations",
+								""
+							],
+							"query": [
+								{
+									"key": "apikey",
+									"value": "{{token}}"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "distance",
+									"value": "{{distance_km}}"
+								},
+								{
+									"key": "lang",
+									"value": "ru_RU"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://api.rasp.yandex.net/v3.0"
+		},
+		{
+			"key": "token",
+			"value": "55c9acc0-e2c0-4eff-9c8f-af4589b425fd"
+		},
+		{
+			"key": "city_from",
+			"value": "c213"
+		},
+		{
+			"key": "city_to",
+			"value": "c146"
+		},
+		{
+			"key": "station_svo",
+			"value": "s9600213"
+		},
+		{
+			"key": "lat_moscow",
+			"value": "55.7558"
+		},
+		{
+			"key": "lng_moscow",
+			"value": "37.6173"
+		},
+		{
+			"key": "distance_km",
+			"value": "30"
+		},
+		{
+			"key": "uid",
+			"value": ""
+		},
+		{
+			"key": "date",
+			"value": ""
+		}
+	]
+}
